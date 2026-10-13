@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramas en Git y GitHub</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --text: #1f2328;
+    --muted: #59636e;
+    --border: #d1d9e0;
+    --accent: #0969da;
+    --main: #0969da;
+    --feature: #8250df;
+    --fix: #1a7f37;
+    --warn: #9a6700;
+    --warn-bg: #fff8c5;
+    --code-bg: #f0f2f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --text: #e6edf3;
+      --muted: #9198a1;
+      --border: #30363d;
+      --accent: #4493f8;
+      --main: #4493f8;
+      --feature: #ab7df8;
+      --fix: #3fb950;
+      --warn: #d29922;
+      --warn-bg: #2b2111;
+      --code-bg: #1f242c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+  header {
+    padding: 48px 16px 32px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  header h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 2.6rem); }
+  header p { margin: 0 auto; max-width: 640px; color: var(--muted); }
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0 16px;
+  }
+  nav a {
+    display: inline-block;
+    padding: 12px 10px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .92rem;
+  }
+  nav a:hover { color: var(--accent); }
+  main { max-width: 880px; margin: 0 auto; padding: 0 16px 64px; }
+  section { padding-top: 40px; }
+  h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  h3 { font-size: 1.1rem; margin-top: 28px; }
+  code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: .9em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: .9rem;
+  }
+  pre code { background: none; padding: 0; }
+  .comment { color: var(--muted); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .note {
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin: 20px 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .grid .card { margin: 0; }
+  .grid .card h3 { margin-top: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  .table-wrap { overflow-x: auto; }
+  th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  td code { white-space: nowrap; }
+
+  /* Simulador */
+  .sim svg { width: 100%; height: auto; display: block; }
+  .sim .line { stroke-width: 4; fill: none; stroke-linecap: round; }
+  .sim .commit { stroke: var(--surface); stroke-width: 3; }
+  .sim .lbl { font: 600 13px system-ui, sans-serif; fill: var(--text); }
+  .sim .tag rect { rx: 4; }
+  .sim .tag text { font: 600 12px system-ui, sans-serif; fill: #fff; }
+  .sim [data-show] { transition: opacity .35s; }
+  .sim .hidden { opacity: 0; }
+  .sim-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  .sim-controls button {
+    background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+    padding: 8px 16px; font-size: .95rem; cursor: pointer;
+  }
+  .sim-controls button:disabled { opacity: .4; cursor: default; }
+  .sim-controls .step-count { color: var(--muted); font-size: .9rem; margin-left: auto; }
+  .sim-desc { margin-top: 12px; }
+  .sim-desc pre { margin: 8px 0 0; }
+
+  .flow { counter-reset: paso; list-style: none; padding: 0; }
+  .flow li {
+    counter-increment: paso;
+    position: relative;
+    padding: 0 0 18px 48px;
+  }
+  .flow li::before {
+    content: counter(paso);
+    position: absolute; left: 0; top: 0;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+  }
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 16px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌿 Ramas en Git y GitHub</h1>
+  <p>Qué es una rama, cómo se crea, cómo se une y cómo se trabaja en equipo con Pull Requests.</p>
+</header>
+
+<nav>
+  <a href="#que-es">¿Qué es?</a>
+  <a href="#simulador">Simulador</a>
+  <a href="#comandos">Comandos</a>
+  <a href="#merge">Merge y conflictos</a>
+  <a href="#remoto">Ramas remotas</a>
+  <a href="#github">GitHub y Pull Requests</a>
+  <a href="#flujo">Flujo de trabajo</a>
+  <a href="#practicas">Buenas prácticas</a>
+  <a href="#chuleta">Chuleta</a>
+</nav>
+
+<main>
+
+<section id="que-es">
+  <h2>1. ¿Qué es una rama?</h2>
+  <p>
+    Una <strong>rama (branch)</strong> es una línea de desarrollo independiente. Te permite trabajar en una
+    nueva funcionalidad o corregir un error <em>sin tocar</em> el código estable, y cuando terminas, unir
+    (hacer <strong>merge</strong>) esos cambios a la rama principal.
+  </p>
+  <p>
+    Técnicamente, una rama en Git es solo un <strong>puntero ligero a un commit</strong>. Cada vez que haces
+    un commit en esa rama, el puntero avanza automáticamente. Por eso crear ramas en Git es instantáneo y barato.
+  </p>
+  <div class="grid">
+    <div class="card">
+      <h3>📌 <code>main</code></h3>
+      <p>La rama principal. Normalmente contiene el código estable, listo para producción. (Antes se llamaba <code>master</code>.)</p>
+    </div>
+    <div class="card">
+      <h3>🧭 <code>HEAD</code></h3>
+      <p>Un puntero especial que indica <strong>en qué rama estás ahora</strong>. Los nuevos commits se agregan donde apunta HEAD.</p>
+    </div>
+    <div class="card">
+      <h3>🌱 Rama de trabajo</h3>
+      <p>Ramas como <code>feature/login</code> o <code>fix/navbar</code> donde desarrollas cambios aislados.</p>
+    </div>
+  </div>
+</section>
+
+<section id="simulador">
+  <h2>2. Simulador paso a paso</h2>
+  <p>Avanza por los pasos para ver cómo evoluciona el historial de commits.</p>
+
+  <div class="card sim">
+    <svg viewBox="0 0 560 210" role="img" aria-label="Diagrama del historial de commits">
+      <!-- Línea main -->
+      <path class="line" style="stroke:var(--main)" d="M60 70 L160 70" data-show="0-5"/>
+      <path class="line" style="stroke:var(--main)" d="M160 70 L320 70" data-show="3-5"/>
+      <path class="line" style="stroke:var(--main)" d="M320 70 L470 70" data-show="4-5"/>
+      <!-- Línea feature -->
+      <path class="line" style="stroke:var(--feature)" d="M160 70 C 190 70, 200 150, 240 150 L360 150" data-show="2-5"/>
+      <path class="line" style="stroke:var(--feature)" d="M360 150 C 410 150, 430 70, 470 70" data-show="4-5"/>
+
+      <!-- Commits main -->
+      <circle class="commit" cx="60"  cy="70" r="14" style="fill:var(--main)" data-show="0-5"/>
+      <text class="lbl" x="60" y="40" text-anchor="middle" data-show="0-5">A</text>
+      <circle class="commit" cx="160" cy="70" r="14" style="fill:var(--main)" data-show="0-5"/>
+      <text class="lbl" x="160" y="40" text-anchor="middle" data-show="0-5">B</text>
+      <circle class="commit" cx="320" cy="70" r="14" style="fill:var(--main)" data-show="3-5"/>
+      <text class="lbl" x="320" y="40" text-anchor="middle" data-show="3-5">E</text>
+      <circle class="commit" cx="470" cy="70" r="16" style="fill:var(--fix)" data-show="4-5"/>
+      <text class="lbl" x="470" y="40" text-anchor="middle" data-show="4-5">M (merge)</text>
+
+      <!-- Commits feature -->
+      <circle class="commit" cx="250" cy="150" r="14" style="fill:var(--feature)" data-show="2-5"/>
+      <text class="lbl" x="250" y="185" text-anchor="middle" data-show="2-5">C</text>
+      <circle class="commit" cx="360" cy="150" r="14" style="fill:var(--feature)" data-show="2-5"/>
+      <text class="lbl" x="360" y="185" text-anchor="middle" data-show="2-5">D</text>
+
+      <!-- Etiquetas de rama (posición varía por paso) -->
+      <g class="tag" data-show="0-0" transform="translate(185,58)"><rect width="88" height="22" style="fill:var(--main)"/><text x="8" y="15">main ← HEAD</text></g>
+      <g class="tag" data-show="1-1" transform="translate(130,90)"><rect width="60" height="22" style="fill:var(--main)"/><text x="8" y="15">main</text></g>
+      <g class="tag" data-show="1-1" transform="translate(185,58)"><rect width="104" height="22" style="fill:var(--feature)"/><text x="8" y="15">feature ← HEAD</text></g>
+      <g class="tag" data-show="2-2" transform="translate(185,58)"><rect width="44" height="22" style="fill:var(--main)"/><text x="8" y="15">main</text></g>
+      <g class="tag" data-show="2-3" transform="translate(385,139)"><rect width="104" height="22" style="fill:var(--feature)"/><text x="8" y="15">feature ← HEAD</text></g>
+      <g class="tag" data-show="3-3" transform="translate(345,58)"><rect width="44" height="22" style="fill:var(--main)"/><text x="8" y="15">main</text></g>
+      <g class="tag" data-show="4-5" transform="translate(495,58)"><rect width="56" height="22" style="fill:var(--main)"/><text x="8" y="15">main</text></g>
+      <g class="tag" data-show="4-5" transform="translate(495,84)"><rect width="44" height="22" style="fill:var(--fix)"/><text x="6" y="15">HEAD</text></g>
+      <g class="tag" data-show="4-4" transform="translate(385,139)"><rect width="60" height="22" style="fill:var(--feature)"/><text x="8" y="15">feature</text></g>
+    </svg>
+
+    <div class="sim-controls">
+      <button id="prev" type="button">◀ Anterior</button>
+      <button id="next" type="button">Siguiente ▶</button>
+      <span class="step-count" id="count"></span>
+    </div>
+    <div class="sim-desc" id="desc"></div>
+  </div>
+</section>
+
+<section id="comandos">
+  <h2>3. Comandos básicos de ramas</h2>
+
+  <h3>Ver ramas</h3>
+<pre><code>git branch          <span class="comment"># ramas locales (la actual con *)</span>
+git branch -a       <span class="comment"># locales y remotas</span>
+git branch -v       <span class="comment"># con el último commit de cada una</span></code></pre>
+
+  <h3>Crear y cambiar de rama</h3>
+<pre><code>git branch feature/login        <span class="comment"># crea la rama (no te mueve)</span>
+git switch feature/login        <span class="comment"># cambia a la rama</span>
+
+git switch -c feature/login     <span class="comment"># crea y cambia en un solo paso</span>
+
+<span class="comment"># Forma clásica (sigue funcionando)</span>
+git checkout feature/login
+git checkout -b feature/login</code></pre>
+
+  <h3>Renombrar y eliminar</h3>
+<pre><code>git branch -m nuevo-nombre      <span class="comment"># renombra la rama actual</span>
+git branch -d feature/login     <span class="comment"># elimina (solo si ya se unió)</span>
+git branch -D feature/login     <span class="comment"># elimina forzando (¡pierdes commits no unidos!)</span></code></pre>
+
+  <div class="note">
+    💡 Antes de cambiar de rama, haz <strong>commit</strong> de tus cambios o guárdalos temporalmente con
+    <code>git stash</code>. Luego los recuperas con <code>git stash pop</code>.
+  </div>
+</section>
+
+<section id="merge">
+  <h2>4. Unir ramas: merge y conflictos</h2>
+  <p>Para traer los cambios de una rama a otra, te colocas en la rama <strong>destino</strong> y haces merge de la rama <strong>origen</strong>:</p>
+<pre><code>git switch main
+git merge feature/login</code></pre>
+
+  <div class="grid">
+    <div class="card">
+      <h3>⏩ Fast-forward</h3>
+      <p>Si <code>main</code> no tuvo commits nuevos desde que creaste la rama, Git simplemente <strong>adelanta el puntero</strong>. No se crea un commit extra.</p>
+    </div>
+    <div class="card">
+      <h3>🔀 Merge de tres vías</h3>
+      <p>Si ambas ramas avanzaron, Git crea un <strong>commit de merge</strong> que tiene dos padres y combina los cambios.</p>
+    </div>
+    <div class="card">
+      <h3>📐 Rebase (alternativa)</h3>
+      <p><code>git rebase main</code> reaplica tus commits encima de <code>main</code>, dejando un historial lineal. No lo uses en ramas compartidas ya publicadas.</p>
+    </div>
+  </div>
+
+  <h3>¿Y si hay un conflicto?</h3>
+  <p>Ocurre cuando las dos ramas modificaron <strong>las mismas líneas</strong> de un archivo. Git pausa el merge y marca el archivo así:</p>
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+&lt;h1&gt;Bienvenido&lt;/h1&gt;
+=======
+&lt;h1&gt;Hola, usuario&lt;/h1&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/login</code></pre>
+  <ol>
+    <li>Abre el archivo y decide qué versión dejar (o combina ambas).</li>
+    <li>Borra los marcadores <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code> y <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>.</li>
+    <li>Marca el conflicto como resuelto y termina el merge:</li>
+  </ol>
+<pre><code>git add index.html
+git commit                 <span class="comment"># completa el merge</span>
+
+git merge --abort          <span class="comment"># o cancela y vuelve al estado anterior</span></code></pre>
+</section>
+
+<section id="remoto">
+  <h2>5. Ramas remotas (Git ↔ GitHub)</h2>
+  <p>
+    Tus ramas locales viven en tu computadora. Para compartirlas, las subes a un <strong>remoto</strong>
+    (normalmente llamado <code>origin</code>, que apunta a tu repositorio en GitHub).
+  </p>
+<pre><code><span class="comment"># Subir una rama nueva y vincularla (-u = upstream)</span>
+git push -u origin feature/login
+
+<span class="comment"># Después basta con:</span>
+git push
+
+<span class="comment"># Traer información de ramas remotas</span>
+git fetch                       <span class="comment"># descarga sin modificar tu trabajo</span>
+git pull                        <span class="comment"># fetch + merge en la rama actual</span>
+
+<span class="comment"># Trabajar en una rama que creó otra persona</span>
+git switch feature/pagos        <span class="comment"># Git la crea a partir de origin/feature/pagos</span>
+
+<span class="comment"># Eliminar una rama en GitHub</span>
+git push origin --delete feature/login</code></pre>
+  <div class="note">
+    🔎 <code>origin/main</code> es una <strong>rama de seguimiento remoto</strong>: una copia local de cómo estaba
+    <code>main</code> en GitHub la última vez que hiciste <code>fetch</code> o <code>pull</code>.
+  </div>
+</section>
+
+<section id="github">
+  <h2>6. GitHub y los Pull Requests</h2>
+  <p>
+    Un <strong>Pull Request (PR)</strong> es una solicitud en GitHub para unir tu rama a otra (normalmente
+    <code>main</code>). Es el lugar donde el equipo <strong>revisa, comenta y aprueba</strong> los cambios antes del merge.
+  </p>
+  <div class="grid">
+    <div class="card">
+      <h3>Crear un PR</h3>
+      <p>Tras hacer <code>git push</code> de tu rama, GitHub muestra el botón <strong>“Compare &amp; pull request”</strong>. Elige la rama base (<code>main</code>) y la de comparación (tu rama), escribe un título y descripción.</p>
+    </div>
+    <div class="card">
+      <h3>Revisión</h3>
+      <p>Los compañeros dejan comentarios en líneas específicas, aprueban o piden cambios. Cada nuevo <code>push</code> a tu rama actualiza el PR automáticamente.</p>
+    </div>
+    <div class="card">
+      <h3>Opciones de merge</h3>
+      <p><strong>Merge commit</strong> (conserva todo), <strong>Squash and merge</strong> (un solo commit) o <strong>Rebase and merge</strong> (historial lineal).</p>
+    </div>
+  </div>
+  <p>También puedes crear PRs desde la terminal con GitHub CLI:</p>
+<pre><code>gh pr create --base main --title "Agrega login" --body "Descripción del cambio"
+gh pr list
+gh pr merge 12 --squash --delete-branch</code></pre>
+  <div class="note">
+    🛡️ En <em>Settings → Branches</em> puedes crear <strong>reglas de protección</strong> para <code>main</code>:
+    exigir PR, aprobaciones mínimas o que pasen los tests antes de unir.
+  </div>
+</section>
+
+<section id="flujo">
+  <h2>7. Flujo de trabajo completo (GitHub Flow)</h2>
+  <ol class="flow">
+    <li><strong>Actualiza main:</strong> <code>git switch main</code> y <code>git pull</code>.</li>
+    <li><strong>Crea tu rama:</strong> <code>git switch -c feature/carrito</code>.</li>
+    <li><strong>Trabaja y haz commits:</strong> <code>git add .</code> y <code>git commit -m "Agrega carrito"</code>.</li>
+    <li><strong>Sube la rama:</strong> <code>git push -u origin feature/carrito</code>.</li>
+    <li><strong>Abre un Pull Request</strong> en GitHub hacia <code>main</code>.</li>
+    <li><strong>Revisión y ajustes:</strong> corrige lo que te pidan y vuelve a hacer <code>push</code>.</li>
+    <li><strong>Merge</strong> del PR en GitHub.</li>
+    <li><strong>Limpia:</strong> <code>git switch main</code>, <code>git pull</code> y <code>git branch -d feature/carrito</code>.</li>
+  </ol>
+</section>
+
+<section id="practicas">
+  <h2>8. Buenas prácticas</h2>
+  <ul>
+    <li><strong>Una rama por tarea.</strong> Ramas pequeñas y de vida corta son más fáciles de revisar y unir.</li>
+    <li><strong>Nombres descriptivos</strong> con prefijo: <code>feature/</code>, <code>fix/</code>, <code>hotfix/</code>, <code>docs/</code>, <code>refactor/</code>.</li>
+    <li><strong>No trabajes directo en <code>main</code>.</strong> Usa siempre una rama y un PR.</li>
+    <li><strong>Sincroniza seguido</strong> con <code>main</code> (merge o rebase) para evitar conflictos grandes.</li>
+    <li><strong>Commits claros:</strong> mensajes que expliquen <em>qué</em> y <em>por qué</em>.</li>
+    <li><strong>Borra las ramas</strong> ya unidas para mantener el repositorio ordenado.</li>
+  </ul>
+</section>
+
+<section id="chuleta">
+  <h2>9. Chuleta rápida</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Comando</th><th>Para qué sirve</th></tr></thead>
+    <tbody>
+      <tr><td><code>git branch</code></td><td>Lista las ramas locales</td></tr>
+      <tr><td><code>git branch -a</code></td><td>Lista ramas locales y remotas</td></tr>
+      <tr><td><code>git switch -c &lt;rama&gt;</code></td><td>Crea una rama y cambia a ella</td></tr>
+      <tr><td><code>git switch &lt;rama&gt;</code></td><td>Cambia a una rama existente</td></tr>
+      <tr><td><code>git merge &lt;rama&gt;</code></td><td>Une &lt;rama&gt; en la rama actual</td></tr>
+      <tr><td><code>git rebase &lt;rama&gt;</code></td><td>Reaplica tus commits encima de &lt;rama&gt;</td></tr>
+      <tr><td><code>git branch -d &lt;rama&gt;</code></td><td>Elimina una rama local ya unida</td></tr>
+      <tr><td><code>git push -u origin &lt;rama&gt;</code></td><td>Sube la rama a GitHub y la vincula</td></tr>
+      <tr><td><code>git push origin --delete &lt;rama&gt;</code></td><td>Elimina la rama en GitHub</td></tr>
+      <tr><td><code>git fetch</code> / <code>git pull</code></td><td>Descarga cambios / descarga y une</td></tr>
+      <tr><td><code>git log --oneline --graph --all</code></td><td>Muestra el historial de todas las ramas como gráfico</td></tr>
+      <tr><td><code>git stash</code> / <code>git stash pop</code></td><td>Guarda y recupera cambios sin commit</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+</main>
+
+<footer>Guía de ramas con Git y GitHub · Fullstack</footer>
+
+<script>
+  const steps = [
+    { title: "Punto de partida",
+      text: "Tienes dos commits (A y B) en <code>main</code>. HEAD apunta a <code>main</code>.",
+      cmd: "git log --oneline" },
+    { title: "Crear una rama",
+      text: "Creas <code>feature</code> y te cambias a ella. Ambas ramas apuntan al mismo commit B; solo se movió HEAD.",
+      cmd: "git switch -c feature" },
+    { title: "Commits en la rama",
+      text: "Haces commits C y D. Solo <code>feature</code> avanza; <code>main</code> sigue en B, intacta.",
+      cmd: "git add .\ngit commit -m \"C\"\ngit commit -m \"D\"" },
+    { title: "main también avanza",
+      text: "Mientras tanto, alguien agrega el commit E a <code>main</code>. Ahora las ramas han <strong>divergido</strong>.",
+      cmd: "# (otra persona, en main)\ngit commit -m \"E\"" },
+    { title: "Merge",
+      text: "Vuelves a <code>main</code> y unes <code>feature</code>. Git crea el commit de merge M, que tiene dos padres (E y D).",
+      cmd: "git switch main\ngit merge feature" },
+    { title: "Limpieza",
+      text: "La rama ya está unida, así que puedes borrarla. Los commits C y D siguen en el historial de <code>main</code>.",
+      cmd: "git branch -d feature" }
+  ];
+  let step = 0;
+  const els = document.querySelectorAll(".sim [data-show]");
+  const desc = document.getElementById("desc");
+  const count = document.getElementById("count");
+  const prev = document.getElementById("prev");
+  const next = document.getElementById("next");
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+  function render() {
+    els.forEach(el => {
+      const [a, b] = el.dataset.show.split("-").map(Number);
+      el.classList.toggle("hidden", step < a || step > b);
+    });
+    const s = steps[step];
+    desc.innerHTML = `<strong>${s.title}.</strong> ${s.text}<pre><code>${esc(s.cmd)}</code></pre>`;
+    count.textContent = `Paso ${step + 1} de ${steps.length}`;
+    prev.disabled = step === 0;
+    next.disabled = step === steps.length - 1;
+  }
+  prev.onclick = () => { if (step > 0) { step--; render(); } };
+  next.onclick = () => { if (step < steps.length - 1) { step++; render(); } };
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #1f2328;
+  --muted: #59636e;
+  --border: #d1d9e0;
+  --accent: #0969da;
+  --main: #0969da;
+  --feature: #8250df;
+  --fix: #1a7f37;
+  --warn: #9a6700;
+  --warn-bg: #fff8c5;
+  --code-bg: #f0f2f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --text: #e6edf3;
+    --muted: #9198a1;
+    --border: #30363d;
+    --accent: #4493f8;
+    --main: #4493f8;
+    --feature: #ab7df8;
+    --fix: #3fb950;
+    --warn: #d29922;
+    --warn-bg: #2b2111;
+    --code-bg: #1f242c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+}
+header {
+  padding: 48px 16px 32px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+header h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 2.6rem); }
+header p { margin: 0 auto; max-width: 640px; color: var(--muted); }
+nav {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0 16px;
+}
+nav a {
+  display: inline-block;
+  padding: 12px 10px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .92rem;
+}
+nav a:hover { color: var(--accent); }
+main { max-width: 880px; margin: 0 auto; padding: 0 16px 64px; }
+section { padding-top: 40px; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+h3 { font-size: 1.1rem; margin-top: 28px; }
+code {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: .9em;
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-size: .9rem;
+}
+pre code { background: none; padding: 0; }
+.comment { color: var(--muted); }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
+.note {
+  background: var(--warn-bg);
+  border-left: 4px solid var(--warn);
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin: 20px 0;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.grid .card { margin: 0; }
+.grid .card h3 { margin-top: 0; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.table-wrap { overflow-x: auto; }
+th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td code { white-space: nowrap; }
+
+/* Simulador */
+.sim svg { width: 100%; height: auto; display: block; }
+.sim .line { stroke-width: 4; fill: none; stroke-linecap: round; }
+.sim .commit { stroke: var(--surface); stroke-width: 3; }
+.sim .lbl { font: 600 13px system-ui, sans-serif; fill: var(--text); }
+.sim .tag rect { rx: 4; }
+.sim .tag text { font: 600 12px system-ui, sans-serif; fill: #fff; }
+.sim [data-show] { transition: opacity .35s; }
+.sim .hidden { opacity: 0; }
+.sim-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+.sim-controls button {
+  background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+  padding: 8px 16px; font-size: .95rem; cursor: pointer;
+}
+.sim-controls button:disabled { opacity: .4; cursor: default; }
+.sim-controls .step-count { color: var(--muted); font-size: .9rem; margin-left: auto; }
+.sim-desc { margin-top: 12px; }
+.sim-desc pre { margin: 8px 0 0; }
+
+.flow { counter-reset: paso; list-style: none; padding: 0; }
+.flow li {
+  counter-increment: paso;
+  position: relative;
+  padding: 0 0 18px 48px;
+}
+.flow li::before {
+  content: counter(paso);
+  position: absolute; left: 0; top: 0;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+}
+footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 16px; border-top: 1px solid var(--border); }

@@ -179,6 +179,87 @@ const ejemplos = [
         explica: "Requiere instalar GitHub CLI (gh) e iniciar sesión con gh auth login." }
     ],
     resumen: 'git push -u origin feature/login\n# GitHub: Compare & pull request → Create → Merge\ngit switch main\ngit pull\ngit branch -d feature/login'
+  },
+  {
+    id: "clonar",
+    titulo: "8. Clonar un repositorio existente",
+    intro: "Descarga a tu computadora un repositorio que ya está en GitHub (tuyo o de otra persona), con todo su historial y sus ramas. No necesitas hacer git init: el clon ya es un repositorio.",
+    pasos: [
+      { tipo: "web", titulo: "Copia la URL del repositorio",
+        lista: [
+          "Entra al repositorio en GitHub y pulsa el botón verde <strong>&lt;&gt; Code</strong>.",
+          "En la pestaña <strong>HTTPS</strong>, copia la URL, por ejemplo <code>https://github.com/usuario/mi-proyecto.git</code>.",
+          "Si configuraste una llave SSH, puedes usar la pestaña <strong>SSH</strong>: <code>git@github.com:usuario/mi-proyecto.git</code>."
+        ] },
+      { tipo: "cmd", titulo: "Ve a la carpeta donde quieres guardar el proyecto",
+        cmd: "cd ~/proyectos",
+        explica: "git clone crea una carpeta nueva dentro de la carpeta en la que estás." },
+      { tipo: "cmd", titulo: "Clona el repositorio",
+        cmd: "git clone https://github.com/usuario/mi-proyecto.git",
+        explica: "Descarga los archivos, el historial y las ramas, y configura automáticamente el remoto origin.",
+        salida: "Cloning into 'mi-proyecto'...\nremote: Enumerating objects: 42, done.\nReceiving objects: 100% (42/42), done." },
+      { tipo: "cmd", titulo: "Opcional: elige otro nombre para la carpeta",
+        cmd: "git clone https://github.com/usuario/mi-proyecto.git otro-nombre\n# o clonar en la carpeta actual (debe estar vacía):\ngit clone https://github.com/usuario/mi-proyecto.git ." },
+      { tipo: "cmd", titulo: "Entra a la carpeta del proyecto",
+        cmd: "cd mi-proyecto" },
+      { tipo: "cmd", titulo: "Comprueba el remoto y las ramas",
+        cmd: "git remote -v\ngit branch -a",
+        explica: "Solo verás main como rama local. Las demás aparecen como remotes/origin/...",
+        salida: "origin  https://github.com/usuario/mi-proyecto.git (fetch)\norigin  https://github.com/usuario/mi-proyecto.git (push)\n* main\n  remotes/origin/HEAD -> origin/main\n  remotes/origin/feature/login\n  remotes/origin/main" },
+      { tipo: "cmd", titulo: "Trabaja en una rama remota",
+        cmd: "git switch feature/login",
+        explica: "Git crea la rama local a partir de origin/feature/login y la deja vinculada para hacer pull y push.",
+        salida: "branch 'feature/login' set up to track 'origin/feature/login'.\nSwitched to a new branch 'feature/login'" },
+      { tipo: "cmd", titulo: "Instala las dependencias (si el proyecto las usa)",
+        cmd: "npm install",
+        explica: "Carpetas como node_modules no se suben a GitHub, así que hay que instalarlas después de clonar. Revisa el README del proyecto." },
+      { tipo: "web", titulo: "¿Repositorio de otra persona? Haz un fork",
+        lista: [
+          "Si no tienes permiso para hacer push al repositorio, pulsa <strong>Fork</strong> en GitHub para crear una copia en tu cuenta.",
+          "Clona <strong>tu fork</strong> en lugar del original. Desde ahí podrás subir cambios y abrir Pull Requests hacia el repositorio original."
+        ] }
+    ],
+    resumen: "git clone https://github.com/usuario/mi-proyecto.git\ncd mi-proyecto\ngit branch -a\ngit switch feature/login   # para trabajar en otra rama"
+  },
+  {
+    id: "stash",
+    titulo: "9. Guardar cambios temporalmente con git stash",
+    intro: "Estás a mitad de un cambio en feature/login y necesitas ir a main a corregir algo urgente, pero tu trabajo aún no está listo para un commit. git stash guarda tus cambios en un “cajón”, deja la carpeta limpia y te permite recuperarlos después.",
+    pasos: [
+      { tipo: "cmd", titulo: "Mira los cambios pendientes",
+        cmd: "git status",
+        salida: "On branch feature/login\nChanges not staged for commit:\n        modified:   login.js" },
+      { tipo: "cmd", titulo: "Guarda los cambios en el stash con un mensaje",
+        cmd: 'git stash push -m "login a medias"',
+        explica: "Tu carpeta vuelve al estado del último commit. Sin -m también funciona (git stash), pero el mensaje te ayuda a identificarlo después.",
+        salida: "Saved working directory and index state On feature/login: login a medias" },
+      { tipo: "cmd", titulo: "Incluye también los archivos nuevos (si los hay)",
+        cmd: 'git stash push -u -m "login a medias"',
+        explica: "Por defecto, stash solo guarda archivos que Git ya conoce. La opción -u también guarda los archivos nuevos (untracked)." },
+      { tipo: "cmd", titulo: "Haz el trabajo urgente en otra rama",
+        cmd: 'git switch main\n# ... corriges el error ...\ngit add .\ngit commit -m "Corrige error urgente"\ngit push',
+        explica: "Como la carpeta quedó limpia, puedes cambiar de rama sin problemas." },
+      { tipo: "cmd", titulo: "Vuelve a tu rama y mira lo que guardaste",
+        cmd: "git switch feature/login\ngit stash list",
+        explica: "stash@{0} es el más reciente. Puedes tener varios stashes guardados. En PowerShell escríbelo entre comillas: 'stash@{0}'.",
+        salida: "stash@{0}: On feature/login: login a medias" },
+      { tipo: "cmd", titulo: "Opcional: revisa qué contiene un stash",
+        cmd: "git stash show -p stash@{0}",
+        explica: "Muestra los cambios guardados línea por línea, sin aplicarlos." },
+      { tipo: "cmd", titulo: "Recupera tus cambios",
+        cmd: "git stash pop\n# o aplicarlos sin borrarlos del stash:\ngit stash apply stash@{0}",
+        explica: "pop aplica los cambios y los borra del stash. apply los aplica, pero los conserva por si los necesitas de nuevo." },
+      { tipo: "cmd", titulo: "Si aparece un conflicto al recuperar",
+        cmd: "# Resuelve el conflicto en el archivo, luego:\ngit add login.js\ngit stash drop",
+        explica: "Si hay conflicto, pop no borra el stash, así que lo eliminas a mano cuando termines." },
+      { tipo: "cmd", titulo: "Limpia los stashes que ya no necesitas",
+        cmd: "git stash drop stash@{0}   # borra uno\ngit stash clear            # borra todos",
+        explica: "Cuidado: clear borra todos los stashes y no se puede deshacer." },
+      { tipo: "cmd", titulo: "Truco: convierte un stash en una rama nueva",
+        cmd: "git stash branch feature/login-v2 stash@{0}",
+        explica: "Crea una rama desde el commit donde guardaste el stash y aplica ahí los cambios. Es útil si ya no se aplican bien en la rama original." }
+    ],
+    resumen: 'git stash push -u -m "trabajo a medias"\ngit switch main          # haces lo urgente\ngit switch feature/login\ngit stash list\ngit stash pop'
   }
 ];
 

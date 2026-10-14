@@ -216,7 +216,7 @@ const ejemplos = [
       { tipo: "web", titulo: "¿Repositorio de otra persona? Haz un fork",
         lista: [
           "Si no tienes permiso para hacer push al repositorio, pulsa <strong>Fork</strong> en GitHub para crear una copia en tu cuenta.",
-          "Clona <strong>tu fork</strong> en lugar del original. Desde ahí podrás subir cambios y abrir Pull Requests hacia el repositorio original."
+          "Clona <strong>tu fork</strong> en lugar del original. Desde ahí podrás subir cambios y abrir Pull Requests hacia el repositorio original. Mira el ejemplo 10 para el proceso completo."
         ] }
     ],
     resumen: "git clone https://github.com/usuario/mi-proyecto.git\ncd mi-proyecto\ngit branch -a\ngit switch feature/login   # para trabajar en otra rama"
@@ -260,6 +260,63 @@ const ejemplos = [
         explica: "Crea una rama desde el commit donde guardaste el stash y aplica ahí los cambios. Es útil si ya no se aplican bien en la rama original." }
     ],
     resumen: 'git stash push -u -m "trabajo a medias"\ngit switch main          # haces lo urgente\ngit switch feature/login\ngit stash list\ngit stash pop'
+  },
+  {
+    id: "fork",
+    titulo: "10. Contribuir a otro proyecto con un fork",
+    intro: "Un fork es una copia de un repositorio de otra persona dentro de tu cuenta de GitHub. Como no tienes permiso para hacer push al original, trabajas en tu fork y luego envías tus cambios al proyecto original con un Pull Request. En este ejemplo, el original es <code>autor/proyecto</code> y tu usuario es <code>tu-usuario</code>.",
+    pasos: [
+      { tipo: "web", titulo: "Haz el fork en GitHub",
+        lista: [
+          "Entra al repositorio original, por ejemplo <code>https://github.com/autor/proyecto</code>.",
+          "Pulsa el botón <strong>Fork</strong> (arriba a la derecha).",
+          "Deja tu cuenta como <strong>Owner</strong> y el mismo nombre de repositorio. Deja marcada la opción <em>Copy the main branch only</em>.",
+          "Pulsa <strong>Create fork</strong>. Ahora tienes tu copia en <code>https://github.com/tu-usuario/proyecto</code>."
+        ] },
+      { tipo: "cmd", titulo: "Clona TU fork (no el original)",
+        cmd: "git clone https://github.com/tu-usuario/proyecto.git\ncd proyecto",
+        explica: "Así origin apunta a tu fork, donde sí tienes permiso para hacer push." },
+      { tipo: "cmd", titulo: "Conecta el repositorio original como upstream",
+        cmd: "git remote add upstream https://github.com/autor/proyecto.git\ngit remote -v",
+        explica: "origin = tu fork (subes aquí). upstream = el original (de aquí traes las novedades). El nombre upstream es una convención.",
+        salida: "origin    https://github.com/tu-usuario/proyecto.git (fetch)\norigin    https://github.com/tu-usuario/proyecto.git (push)\nupstream  https://github.com/autor/proyecto.git (fetch)\nupstream  https://github.com/autor/proyecto.git (push)" },
+      { tipo: "cmd", titulo: "Actualiza tu main con el original",
+        cmd: "git switch main\ngit fetch upstream\ngit merge upstream/main\ngit push origin main",
+        explica: "Hazlo antes de empezar: el proyecto original pudo avanzar desde que hiciste el fork. También puedes usar el botón <strong>Sync fork</strong> en GitHub y luego <code>git pull</code>." },
+      { tipo: "cmd", titulo: "Crea una rama para tu contribución",
+        cmd: "git switch -c fix/typo-readme",
+        explica: "No trabajes directo en main: una rama por contribución mantiene limpio tu fork y facilita el PR." },
+      { tipo: "cmd", titulo: "Haz tus cambios y el commit",
+        cmd: 'git status\ngit add .\ngit commit -m "Corrige error de ortografía en el README"',
+        explica: "Lee antes el README o el archivo CONTRIBUTING.md del proyecto: muchas veces indica cómo escribir los commits o qué tests ejecutar." },
+      { tipo: "cmd", titulo: "Sube la rama a TU fork",
+        cmd: "git push -u origin fix/typo-readme",
+        explica: "Se sube a origin (tu fork). No puedes hacer push a upstream." },
+      { tipo: "web", titulo: "Abre el Pull Request hacia el repositorio original",
+        lista: [
+          "Entra a tu fork en GitHub. Aparecerá el aviso <strong>Compare &amp; pull request</strong>. Púlsalo.",
+          "Revisa que diga <strong>base repository: autor/proyecto</strong>, <strong>base: main</strong> ← <strong>head repository: tu-usuario/proyecto</strong>, <strong>compare: fix/typo-readme</strong>.",
+          "Escribe un título claro y explica qué cambiaste y por qué.",
+          "Deja marcada <em>Allow edits by maintainers</em> para que los responsables puedan ajustar detalles.",
+          "Pulsa <strong>Create pull request</strong>."
+        ] },
+      { tipo: "web", titulo: "Responde a la revisión",
+        lista: [
+          "Los responsables del proyecto pueden comentar o pedir cambios.",
+          "Corrígelos en la misma rama y haz <code>git push</code>: el PR se actualiza solo.",
+          "Cuando lo aprueben, ellos harán el merge. ¡Tu contribución quedará en el proyecto original!"
+        ] },
+      { tipo: "cmd", titulo: "Si el original avanzó mientras esperabas",
+        cmd: "git fetch upstream\ngit merge upstream/main\n# resuelve conflictos si los hay, luego:\ngit push",
+        explica: "Así tu rama queda al día con el proyecto original y el PR se puede unir sin conflictos." },
+      { tipo: "cmd", titulo: "Después del merge: limpia y sincroniza",
+        cmd: "git switch main\ngit fetch upstream\ngit merge upstream/main\ngit push origin main\ngit branch -d fix/typo-readme\ngit push origin --delete fix/typo-readme",
+        explica: "Tu main y tu fork quedan al día con el original, y borras la rama que ya no necesitas." },
+      { tipo: "cmd", titulo: "Alternativa: todo desde la terminal con GitHub CLI",
+        cmd: "gh repo fork autor/proyecto --clone\ncd proyecto\n# ... rama, cambios, commit y push ...\ngh pr create --repo autor/proyecto --title \"Corrige README\" --body \"Descripción\"",
+        explica: "gh repo fork crea el fork, lo clona y configura upstream automáticamente." }
+    ],
+    resumen: "# 🌐 GitHub: Fork en autor/proyecto\ngit clone https://github.com/tu-usuario/proyecto.git\ncd proyecto\ngit remote add upstream https://github.com/autor/proyecto.git\ngit fetch upstream\ngit merge upstream/main\ngit switch -c fix/typo-readme\ngit add .\ngit commit -m \"Describe el cambio\"\ngit push -u origin fix/typo-readme\n# 🌐 GitHub: Compare & pull request → Create pull request"
   }
 ];
 

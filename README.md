@@ -10,10 +10,10 @@ Es un sitio estático: solo usa HTML, CSS y JavaScript, sin dependencias ni proc
 
 | Archivo | Qué contiene |
 |---|---|
-| `index.html` | Guía teórica sobre ramas, organizada en 9 secciones |
+| `index.html` | Guía teórica sobre ramas, organizada en 10 secciones |
 | `script.js` | Lógica del simulador paso a paso del historial de commits |
 | `ejemplos.html` | Página de ejemplos prácticos con un selector |
-| `ejemplos.js` | Datos de los 10 ejemplos y el código que los muestra |
+| `ejemplos.js` | Datos de los 11 ejemplos y el código que los muestra |
 | `styles.css` | Estilos compartidos por ambas páginas |
 
 ---
@@ -49,8 +49,9 @@ Explica los conceptos en orden:
 5. **Ramas remotas:** `push -u`, `fetch`, `pull`, `origin/main` y cómo borrar ramas en GitHub.
 6. **GitHub y Pull Requests:** crear y revisar un PR, opciones de merge, GitHub CLI y reglas de protección.
 7. **Flujo de trabajo completo (GitHub Flow)** en 8 pasos.
-8. **Buenas prácticas:** nombres de ramas, commits claros y ramas pequeñas.
-9. **Chuleta rápida:** tabla con los comandos más usados.
+8. **Git Flow:** ramas `main`, `develop`, `feature`, `release` y `hotfix`, diagrama, ciclo de una versión, comandos (manuales y con la extensión `git flow`) y comparación con GitHub Flow y trunk-based.
+9. **Buenas prácticas:** nombres de ramas, commits claros y ramas pequeñas.
+10. **Chuleta rápida:** tabla con los comandos más usados.
 
 ---
 
@@ -65,7 +66,7 @@ Eliges una situación en el selector **“¿Qué quieres hacer?”** y aparece e
 
 Cada ejemplo tiene su propio enlace directo, por ejemplo `ejemplos.html#fork`.
 
-### Los 10 ejemplos
+### Los 11 ejemplos
 
 | # | Ejemplo | Enlace | Comandos clave |
 |---|---|---|---|
@@ -79,6 +80,7 @@ Cada ejemplo tiene su propio enlace directo, por ejemplo `ejemplos.html#fork`.
 | 8 | Clonar un repositorio existente | `#clonar` | `git clone`, `git branch -a` |
 | 9 | Guardar cambios temporalmente con stash | `#stash` | `git stash push`, `list`, `pop`, `apply`, `drop` |
 | 10 | Contribuir a otro proyecto con un fork | `#fork` | `git remote add upstream`, `git fetch upstream`, PR al original |
+| 11 | Publicar una versión con Git Flow | `#gitflow` | `git merge --no-ff`, `git tag -a`, `git flow` |
 
 ---
 
@@ -127,7 +129,7 @@ Los ejemplos están en el arreglo `ejemplos` de `ejemplos.js`. Para agregar uno,
 ```js
 {
   id: "mi-ejemplo",                  // se usa en la URL: ejemplos.html#mi-ejemplo
-  titulo: "11. Título del ejemplo",
+  titulo: "12. Título del ejemplo",
   intro: "Explicación breve de la situación.",
   pasos: [
     { tipo: "cmd", titulo: "Paso en la terminal",

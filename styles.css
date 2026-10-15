@@ -177,7 +177,8 @@ section:nth-of-type(5) { --sec: #f5a524; }
 section:nth-of-type(6) { --sec: #a64dff; }
 section:nth-of-type(7) { --sec: #00a8cc; }
 section:nth-of-type(8) { --sec: #e84393; }
-section:nth-of-type(9) { --sec: #6d4aff; }
+section:nth-of-type(9) { --sec: #f5a524; }
+section:nth-of-type(10) { --sec: #6d4aff; }
 
 h2 {
   margin: 0 0 16px;

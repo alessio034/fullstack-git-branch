@@ -21,6 +21,7 @@
   <a href="#remoto">Ramas remotas</a>
   <a href="#github">GitHub y Pull Requests</a>
   <a href="#flujo">Flujo de trabajo</a>
+  <a href="#gitflow">Git Flow</a>
   <a href="#practicas">Buenas prácticas</a>
   <a href="#chuleta">Chuleta</a>
   <a href="ejemplos.html" class="nav-cta">📘 Ejemplos prácticos</a>
@@ -245,8 +246,165 @@ gh pr merge 12 --squash --delete-branch</code></pre>
   </ol>
 </section>
 
+<section id="gitflow">
+  <h2>8. Git Flow: un modelo de ramas para versiones</h2>
+  <p>
+    <strong>Git Flow</strong> es una forma organizada de usar ramas, propuesta por Vincent Driessen en 2010.
+    Define <strong>dos ramas permanentes</strong> (<code>main</code> y <code>develop</code>) y <strong>tres tipos de ramas
+    temporales</strong> (<code>feature</code>, <code>release</code> y <code>hotfix</code>), cada una con una regla clara:
+    de dónde nace y a dónde se une.
+  </p>
+  <p>
+    Es útil en proyectos que publican <strong>versiones numeradas</strong> (v1.0, v1.1, v2.0…), como apps móviles,
+    librerías o software que se instala, donde hay que preparar y probar cada versión antes de lanzarla.
+  </p>
+
+  <div class="card sim">
+    <svg viewBox="0 0 660 270" role="img" aria-label="Diagrama de Git Flow con las ramas main, develop, feature, release y hotfix">
+      <!-- Nombres de las ramas -->
+      <text class="lbl" x="12" y="44"  style="fill:var(--accent-3)">hotfix</text>
+      <text class="lbl" x="12" y="89"  style="fill:var(--main)">main</text>
+      <text class="lbl" x="12" y="139" style="fill:var(--warn)">release</text>
+      <text class="lbl" x="12" y="189" style="fill:var(--feature)">develop</text>
+      <text class="lbl" x="12" y="239" style="fill:var(--accent-2)">feature</text>
+
+      <!-- Líneas -->
+      <path class="line" style="stroke:var(--main)" d="M120 85 L590 85"/>
+      <path class="line" style="stroke:var(--feature)" d="M120 85 C 145 85, 145 185, 170 185 L590 185"/>
+      <path class="line" style="stroke:var(--accent-2)" d="M170 185 C 195 185, 195 235, 220 235 L270 235 C 295 235, 295 185, 320 185"/>
+      <path class="line" style="stroke:var(--warn)" d="M320 185 C 345 185, 345 135, 370 135 L420 135 C 445 135, 445 85, 470 85"/>
+      <path class="line" style="stroke:var(--warn)" d="M420 135 C 445 135, 445 185, 470 185"/>
+      <path class="line" style="stroke:var(--accent-3)" d="M470 85 C 500 85, 500 40, 530 40 C 560 40, 560 85, 590 85"/>
+      <path class="line" style="stroke:var(--accent-3)" d="M530 40 C 570 40, 560 185, 590 185"/>
+
+      <!-- Commits -->
+      <circle class="commit" cx="120" cy="85"  r="12" style="fill:var(--main)"/>
+      <circle class="commit" cx="470" cy="85"  r="12" style="fill:var(--main)"/>
+      <circle class="commit" cx="590" cy="85"  r="12" style="fill:var(--main)"/>
+      <circle class="commit" cx="170" cy="185" r="12" style="fill:var(--feature)"/>
+      <circle class="commit" cx="320" cy="185" r="12" style="fill:var(--feature)"/>
+      <circle class="commit" cx="470" cy="185" r="12" style="fill:var(--feature)"/>
+      <circle class="commit" cx="590" cy="185" r="12" style="fill:var(--feature)"/>
+      <circle class="commit" cx="220" cy="235" r="12" style="fill:var(--accent-2)"/>
+      <circle class="commit" cx="270" cy="235" r="12" style="fill:var(--accent-2)"/>
+      <circle class="commit" cx="370" cy="135" r="12" style="fill:var(--warn)"/>
+      <circle class="commit" cx="420" cy="135" r="12" style="fill:var(--warn)"/>
+      <circle class="commit" cx="530" cy="40"  r="12" style="fill:var(--accent-3)"/>
+
+      <!-- Etiquetas de versión -->
+      <g class="tag" transform="translate(98,50)"><rect width="44" height="20" style="fill:var(--main)"/><text x="7" y="14">v1.0</text></g>
+      <g class="tag" transform="translate(400,62)"><rect width="44" height="20" style="fill:var(--main)"/><text x="7" y="14">v1.1</text></g>
+      <g class="tag" transform="translate(608,75)"><rect width="50" height="20" style="fill:var(--main)"/><text x="5" y="14">v1.1.1</text></g>
+    </svg>
+    <p class="sim-desc">
+      <code>develop</code> nace de <code>main</code> · una <code>feature</code> sale de <code>develop</code> y vuelve a ella ·
+      la <code>release</code> prepara la v1.1 y se une a <code>main</code> y a <code>develop</code> ·
+      un <code>hotfix</code> corrige un error urgente en producción (v1.1.1) y también se une a ambas.
+    </p>
+  </div>
+
+  <h3>Las ramas de Git Flow</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Rama</th><th>Para qué sirve</th><th>Nace de</th><th>Se une a</th></tr></thead>
+    <tbody>
+      <tr><td><code>main</code></td><td>Código en producción. Cada commit es una versión publicada y lleva una etiqueta (tag).</td><td>—</td><td>— (permanente)</td></tr>
+      <tr><td><code>develop</code></td><td>Rama de integración: aquí se juntan las funcionalidades terminadas para la próxima versión.</td><td><code>main</code></td><td>— (permanente)</td></tr>
+      <tr><td><code>feature/*</code></td><td>Una funcionalidad nueva, por ejemplo <code>feature/login</code>.</td><td><code>develop</code></td><td><code>develop</code></td></tr>
+      <tr><td><code>release/*</code></td><td>Preparar una versión: subir el número, ajustes finales y pruebas. No se agregan funcionalidades.</td><td><code>develop</code></td><td><code>main</code> y <code>develop</code></td></tr>
+      <tr><td><code>hotfix/*</code></td><td>Corregir un error urgente que ya está en producción.</td><td><code>main</code></td><td><code>main</code> y <code>develop</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>¿Cómo funciona? El ciclo de una versión</h3>
+  <ol class="flow">
+    <li><strong>Inicio:</strong> creas <code>develop</code> a partir de <code>main</code> (solo una vez por proyecto).</li>
+    <li><strong>Desarrollo:</strong> cada funcionalidad se hace en su propia rama <code>feature/*</code> y se une a <code>develop</code> al terminar.</li>
+    <li><strong>Preparar la versión:</strong> cuando <code>develop</code> tiene todo lo planeado, creas <code>release/1.1.0</code>. Ahí solo se corrigen errores y se ajusta la versión.</li>
+    <li><strong>Publicar:</strong> unes la release a <code>main</code>, le pones la etiqueta <code>v1.1.0</code> y la unes también a <code>develop</code> para no perder las correcciones.</li>
+    <li><strong>Emergencias:</strong> si aparece un error grave en producción, creas <code>hotfix/1.1.1</code> desde <code>main</code>, lo corriges y lo unes a <code>main</code> (con su etiqueta) y a <code>develop</code>.</li>
+  </ol>
+
+  <h3>Ejemplo con comandos de Git</h3>
+<pre><code><span class="comment"># 0. Crear develop (una sola vez)</span>
+git switch main
+git switch -c develop
+git push -u origin develop
+
+<span class="comment"># 1. Feature: nace de develop y vuelve a develop</span>
+git switch develop
+git switch -c feature/login
+git add .
+git commit -m "Agrega formulario de login"
+git switch develop
+git merge --no-ff feature/login
+git branch -d feature/login
+
+<span class="comment"># 2. Release: nace de develop</span>
+git switch -c release/1.1.0 develop
+git commit -am "Sube la versión a 1.1.0"
+
+<span class="comment"># 3. Publicar: release → main (con tag) y → develop</span>
+git switch main
+git merge --no-ff release/1.1.0
+git tag -a v1.1.0 -m "Versión 1.1.0"
+git switch develop
+git merge --no-ff release/1.1.0
+git branch -d release/1.1.0
+git push origin main develop --tags
+
+<span class="comment"># 4. Hotfix: nace de main y vuelve a main y develop</span>
+git switch -c hotfix/1.1.1 main
+git commit -am "Corrige error en el pago"
+git switch main
+git merge --no-ff hotfix/1.1.1
+git tag -a v1.1.1 -m "Versión 1.1.1"
+git switch develop
+git merge --no-ff hotfix/1.1.1
+git branch -d hotfix/1.1.1
+git push origin main develop --tags</code></pre>
+  <div class="note">
+    💡 <code>--no-ff</code> obliga a crear un commit de merge aunque se pudiera hacer fast-forward. Así el historial
+    muestra claramente que esos commits formaron parte de una feature, release o hotfix.
+  </div>
+
+  <h3>Atajo: la extensión <code>git flow</code></h3>
+  <p>Existe una herramienta (<em>git-flow</em>, hoy mantenida como <em>git-flow-avh</em> / <em>git-flow-next</em>) que hace todos esos pasos por ti. En Git para Windows ya viene incluida.</p>
+<pre><code>git flow init -d                    <span class="comment"># crea develop y usa los nombres por defecto</span>
+
+git flow feature start login        <span class="comment"># crea feature/login desde develop</span>
+git flow feature finish login       <span class="comment"># la une a develop y la borra</span>
+
+git flow release start 1.1.0        <span class="comment"># crea release/1.1.0 desde develop</span>
+git flow release finish 1.1.0       <span class="comment"># une a main y develop, y crea el tag 1.1.0</span>
+
+git flow hotfix start 1.1.1         <span class="comment"># crea hotfix/1.1.1 desde main</span>
+git flow hotfix finish 1.1.1        <span class="comment"># une a main y develop, y crea el tag 1.1.1</span></code></pre>
+
+  <h3>Git Flow vs. otros flujos</h3>
+  <div class="grid">
+    <div class="card">
+      <h3>🌳 Git Flow</h3>
+      <p>Ramas <code>main</code> + <code>develop</code> y ramas de apoyo. Ideal para <strong>versiones planificadas</strong> y para mantener varias versiones a la vez.</p>
+    </div>
+    <div class="card">
+      <h3>🐙 GitHub Flow</h3>
+      <p>Solo <code>main</code> y ramas cortas con Pull Request (sección 7). Ideal para <strong>webs y apps que se despliegan</strong> de forma continua.</p>
+    </div>
+    <div class="card">
+      <h3>🚂 Trunk-based</h3>
+      <p>Todos integran en <code>main</code> varias veces al día, con ramas de horas. Requiere <strong>muchos tests automáticos</strong>.</p>
+    </div>
+  </div>
+  <div class="note">
+    ⚖️ Git Flow añade ceremonia: más ramas y más merges. Si tu proyecto se despliega en cuanto se aprueba un cambio,
+    GitHub Flow suele ser más simple. Elige Git Flow cuando de verdad necesites preparar y mantener versiones.
+  </div>
+</section>
+
 <section id="practicas">
-  <h2>8. Buenas prácticas</h2>
+  <h2>9. Buenas prácticas</h2>
   <ul>
     <li><strong>Una rama por tarea.</strong> Ramas pequeñas y de vida corta son más fáciles de revisar y unir.</li>
     <li><strong>Nombres descriptivos</strong> con prefijo: <code>feature/</code>, <code>fix/</code>, <code>hotfix/</code>, <code>docs/</code>, <code>refactor/</code>.</li>
@@ -258,7 +416,7 @@ gh pr merge 12 --squash --delete-branch</code></pre>
 </section>
 
 <section id="chuleta">
-  <h2>9. Chuleta rápida</h2>
+  <h2>10. Chuleta rápida</h2>
   <div class="table-wrap">
   <table>
     <thead><tr><th>Comando</th><th>Para qué sirve</th></tr></thead>
@@ -275,6 +433,8 @@ gh pr merge 12 --squash --delete-branch</code></pre>
       <tr><td><code>git fetch</code> / <code>git pull</code></td><td>Descarga cambios / descarga y une</td></tr>
       <tr><td><code>git log --oneline --graph --all</code></td><td>Muestra el historial de todas las ramas como gráfico</td></tr>
       <tr><td><code>git stash</code> / <code>git stash pop</code></td><td>Guarda y recupera cambios sin commit</td></tr>
+      <tr><td><code>git tag -a v1.0.0 -m "..."</code></td><td>Crea una etiqueta de versión (Git Flow)</td></tr>
+      <tr><td><code>git merge --no-ff &lt;rama&gt;</code></td><td>Une creando siempre un commit de merge</td></tr>
     </tbody>
   </table>
   </div>

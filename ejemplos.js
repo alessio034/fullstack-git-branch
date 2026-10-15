@@ -317,6 +317,54 @@ const ejemplos = [
         explica: "gh repo fork crea el fork, lo clona y configura upstream automáticamente." }
     ],
     resumen: "# 🌐 GitHub: Fork en autor/proyecto\ngit clone https://github.com/tu-usuario/proyecto.git\ncd proyecto\ngit remote add upstream https://github.com/autor/proyecto.git\ngit fetch upstream\ngit merge upstream/main\ngit switch -c fix/typo-readme\ngit add .\ngit commit -m \"Describe el cambio\"\ngit push -u origin fix/typo-readme\n# 🌐 GitHub: Compare & pull request → Create pull request"
+  },
+  {
+    id: "gitflow",
+    titulo: "11. Publicar una versión con Git Flow",
+    intro: "Recorre un ciclo completo de Git Flow: crear <code>develop</code>, desarrollar una funcionalidad, publicar la versión 1.1.0 y corregir un error urgente con un hotfix (1.1.1). Necesitas un repositorio con <code>main</code> ya subido a GitHub.",
+    pasos: [
+      { tipo: "cmd", titulo: "Crea la rama develop (solo una vez)",
+        cmd: "git switch main\ngit pull\ngit switch -c develop\ngit push -u origin develop",
+        explica: "develop es la rama de integración: aquí se juntan las funcionalidades terminadas. main queda solo para versiones publicadas." },
+      { tipo: "cmd", titulo: "Crea una feature desde develop",
+        cmd: "git switch develop\ngit switch -c feature/login",
+        explica: "Las features siempre nacen de develop, nunca de main." },
+      { tipo: "cmd", titulo: "Trabaja y haz commits en la feature",
+        cmd: "git add .\ngit commit -m \"Agrega formulario de login\"",
+        explica: "Puedes hacer todos los commits que necesites. Si trabajas en equipo, súbela con git push -u origin feature/login y abre un PR hacia develop." },
+      { tipo: "cmd", titulo: "Une la feature a develop",
+        cmd: "git switch develop\ngit merge --no-ff feature/login\ngit branch -d feature/login\ngit push",
+        explica: "--no-ff crea un commit de merge para que en el historial se vea que esos commits venían de una feature." },
+      { tipo: "cmd", titulo: "Crea la rama release",
+        cmd: "git switch -c release/1.1.0 develop\n# actualiza el número de versión (package.json, README...)\ngit commit -am \"Sube la versión a 1.1.0\"",
+        explica: "En la release solo se hacen ajustes finales y correcciones. Mientras tanto, el equipo puede seguir creando features en develop." },
+      { tipo: "cmd", titulo: "Publica: une la release a main y crea el tag",
+        cmd: "git switch main\ngit merge --no-ff release/1.1.0\ngit tag -a v1.1.0 -m \"Versión 1.1.0\"",
+        explica: "Cada merge a main es una versión publicada. El tag marca ese commit con su número de versión.",
+        salida: "git tag\nv1.0.0\nv1.1.0" },
+      { tipo: "cmd", titulo: "Une la release también a develop y bórrala",
+        cmd: "git switch develop\ngit merge --no-ff release/1.1.0\ngit branch -d release/1.1.0\ngit push origin main develop --tags",
+        explica: "Así develop recibe las correcciones hechas en la release. --tags sube las etiquetas a GitHub." },
+      { tipo: "cmd", titulo: "¡Error en producción! Crea un hotfix desde main",
+        cmd: "git switch -c hotfix/1.1.1 main\ngit commit -am \"Corrige error en el pago\"",
+        explica: "El hotfix nace de main porque es la versión que tienen los usuarios, no de develop (que puede tener cambios sin terminar)." },
+      { tipo: "cmd", titulo: "Une el hotfix a main y a develop",
+        cmd: "git switch main\ngit merge --no-ff hotfix/1.1.1\ngit tag -a v1.1.1 -m \"Versión 1.1.1\"\ngit switch develop\ngit merge --no-ff hotfix/1.1.1\ngit branch -d hotfix/1.1.1\ngit push origin main develop --tags",
+        explica: "Igual que la release: va a main (con su tag) y a develop, para que el error no reaparezca en la próxima versión." },
+      { tipo: "cmd", titulo: "Revisa el historial",
+        cmd: "git log --oneline --graph --all",
+        explica: "Verás develop, los merges de la feature, la release y el hotfix, y las etiquetas v1.1.0 y v1.1.1 en main." },
+      { tipo: "web", titulo: "En GitHub: publica la versión (opcional)",
+        lista: [
+          "Entra a tu repositorio → <strong>Releases</strong> → <strong>Draft a new release</strong>.",
+          "Elige el tag <code>v1.1.0</code>, escribe un título y las notas de la versión.",
+          "Pulsa <strong>Publish release</strong>."
+        ] },
+      { tipo: "cmd", titulo: "Alternativa: la extensión git flow",
+        cmd: "git flow init -d\ngit flow feature start login\ngit flow feature finish login\ngit flow release start 1.1.0\ngit flow release finish 1.1.0\ngit flow hotfix start 1.1.1\ngit flow hotfix finish 1.1.1",
+        explica: "Hace los mismos merges y tags automáticamente. Viene incluida en Git para Windows; en macOS se instala con brew install git-flow." }
+    ],
+    resumen: "git switch -c develop main\ngit switch -c feature/login develop\ngit commit -am \"Agrega login\"\ngit switch develop\ngit merge --no-ff feature/login\ngit switch -c release/1.1.0 develop\ngit switch main\ngit merge --no-ff release/1.1.0\ngit tag -a v1.1.0 -m \"Versión 1.1.0\"\ngit switch develop\ngit merge --no-ff release/1.1.0\ngit push origin main develop --tags"
   }
 ];
 

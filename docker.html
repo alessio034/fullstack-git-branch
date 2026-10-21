@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de Docker</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="docker">
+
+<div class="site-nav">
+  <a href="index.html" class="site-brand">🧰 Fullstack</a>
+  <div class="site-tabs">
+    <a href="index.html">🌿 Git y GitHub</a>
+    <a href="docker.html" class="active" aria-current="page">🐳 Docker</a>
+  </div>
+</div>
+
+<header>
+  <h1>🐳 Docker desde cero</h1>
+  <p>Qué son las imágenes y los contenedores, cómo crear un Dockerfile y cómo levantar una app completa con Docker Compose.</p>
+</header>
+
+<nav>
+  <a href="#que-es">¿Qué es?</a>
+  <a href="#simulador">Simulador</a>
+  <a href="#instalar">Instalación</a>
+  <a href="#imagenes">Imágenes</a>
+  <a href="#contenedores">Contenedores</a>
+  <a href="#dockerfile">Dockerfile</a>
+  <a href="#volumenes">Volúmenes y redes</a>
+  <a href="#compose">Docker Compose</a>
+  <a href="#hub">Docker Hub</a>
+  <a href="#practicas">Buenas prácticas</a>
+  <a href="#chuleta">Chuleta</a>
+  <a href="docker-ejemplos.html" class="nav-cta">📘 Ejemplos prácticos</a>
+</nav>
+
+<main>
+
+<section id="que-es">
+  <h2>1. ¿Qué es Docker?</h2>
+  <p>
+    <strong>Docker</strong> es una herramienta para empaquetar una aplicación junto con <em>todo</em> lo que necesita
+    para funcionar (sistema base, lenguaje, librerías, configuración) en una unidad llamada <strong>contenedor</strong>.
+    Ese contenedor se ejecuta igual en tu computadora, en la de tu compañero y en el servidor.
+  </p>
+  <p>
+    Se acabó el clásico <em>“en mi máquina sí funciona”</em>: si funciona en el contenedor, funciona en cualquier lugar
+    donde esté instalado Docker.
+  </p>
+  <div class="grid">
+    <div class="card">
+      <h3>📄 Dockerfile</h3>
+      <p>Un archivo de texto con la <strong>receta</strong>: qué imagen base usar, qué archivos copiar y qué comando ejecutar.</p>
+    </div>
+    <div class="card">
+      <h3>🖼️ Imagen</h3>
+      <p>El <strong>molde</strong> que resulta de construir el Dockerfile. Es de solo lectura y se puede compartir. Ej.: <code>node:20</code>, <code>nginx</code>.</p>
+    </div>
+    <div class="card">
+      <h3>📦 Contenedor</h3>
+      <p>Una <strong>instancia en ejecución</strong> de una imagen. De una sola imagen puedes crear muchos contenedores.</p>
+    </div>
+  </div>
+
+  <h3>Contenedor vs. máquina virtual</h3>
+  <div class="grid">
+    <div class="card">
+      <h3>🖥️ Máquina virtual</h3>
+      <p>Incluye un <strong>sistema operativo completo</strong>. Pesa gigas y tarda minutos en arrancar.</p>
+    </div>
+    <div class="card">
+      <h3>🐳 Contenedor</h3>
+      <p>Comparte el núcleo (kernel) del sistema anfitrión. Pesa megas y <strong>arranca en segundos</strong>.</p>
+    </div>
+    <div class="card">
+      <h3>☁️ Registro</h3>
+      <p>Un “GitHub de imágenes” donde se suben y descargan. El más conocido es <strong>Docker Hub</strong>.</p>
+    </div>
+  </div>
+  <div class="note">
+    💡 Una analogía: el <strong>Dockerfile</strong> es la receta, la <strong>imagen</strong> es el pastel congelado
+    y el <strong>contenedor</strong> es la porción que sirves. Puedes servir muchas porciones del mismo pastel.
+  </div>
+</section>
+
+<section id="simulador">
+  <h2>2. Simulador paso a paso</h2>
+  <p>Avanza por los pasos para ver el ciclo de vida: de un Dockerfile a una imagen, y de una imagen a contenedores.</p>
+
+  <div class="card sim">
+    <svg viewBox="0 0 600 260" role="img" aria-label="Diagrama del ciclo Dockerfile, imagen y contenedores">
+      <defs>
+        <marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" style="fill:var(--muted)"/>
+        </marker>
+      </defs>
+
+      <!-- Dockerfile -->
+      <g class="box" data-show="0-6">
+        <rect x="20" y="95" width="120" height="60" style="fill:var(--warn)"/>
+        <text x="80" y="130" text-anchor="middle">📄 Dockerfile</text>
+      </g>
+
+      <!-- build -->
+      <path class="arrow" d="M140 125 L206 125" marker-end="url(#flecha)" data-show="1-6"/>
+      <text class="lbl" x="173" y="115" text-anchor="middle" data-show="1-6">build</text>
+
+      <!-- Imagen -->
+      <g class="box" data-show="1-6">
+        <rect x="210" y="95" width="130" height="60" style="fill:var(--main)"/>
+        <text x="275" y="120" text-anchor="middle">🖼️ Imagen</text>
+        <text x="275" y="140" text-anchor="middle">mi-app:1.0</text>
+      </g>
+
+      <!-- run → contenedor web -->
+      <path class="arrow" d="M340 125 C 380 125, 385 58, 426 58" marker-end="url(#flecha)" data-show="2-4"/>
+      <text class="lbl" x="385" y="78" text-anchor="middle" data-show="2-4">run</text>
+      <g class="box" data-show="2-3">
+        <rect x="430" y="30" width="155" height="56" style="fill:var(--fix)"/>
+        <text x="507" y="53" text-anchor="middle">📦 web</text>
+        <text x="507" y="73" text-anchor="middle">▶ en ejecución :3000</text>
+      </g>
+      <g class="box" data-show="4-4">
+        <rect x="430" y="30" width="155" height="56" style="fill:var(--muted)"/>
+        <text x="507" y="53" text-anchor="middle">📦 web</text>
+        <text x="507" y="73" text-anchor="middle">■ detenido</text>
+      </g>
+
+      <!-- run → contenedor web2 -->
+      <path class="arrow" d="M340 125 C 380 125, 385 168, 426 168" marker-end="url(#flecha)" data-show="3-6"/>
+      <g class="box" data-show="3-6">
+        <rect x="430" y="140" width="155" height="56" style="fill:var(--fix)"/>
+        <text x="507" y="163" text-anchor="middle">📦 web2</text>
+        <text x="507" y="183" text-anchor="middle">▶ en ejecución :3001</text>
+      </g>
+
+      <!-- push → Docker Hub -->
+      <path class="arrow" d="M275 155 L275 196" marker-end="url(#flecha)" data-show="6-6"/>
+      <text class="lbl" x="285" y="182" data-show="6-6">push</text>
+      <g class="box" data-show="6-6">
+        <rect x="200" y="200" width="150" height="46" style="fill:var(--feature)"/>
+        <text x="275" y="228" text-anchor="middle">☁️ Docker Hub</text>
+      </g>
+    </svg>
+
+    <div class="sim-controls">
+      <button id="prev" type="button">◀ Anterior</button>
+      <button id="next" type="button">Siguiente ▶</button>
+      <span class="step-count" id="count"></span>
+    </div>
+    <div class="sim-desc" id="desc"></div>
+  </div>
+</section>
+
+<section id="instalar">
+  <h2>3. Instalación y primer contenedor</h2>
+  <p>
+    En Windows y macOS instala <strong>Docker Desktop</strong> desde <a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener">docker.com</a>.
+    En Windows usa el motor <strong>WSL 2</strong> (el instalador lo propone). En Linux puedes instalar <em>Docker Engine</em> directamente.
+  </p>
+<pre><code>docker --version            <span class="comment"># comprueba que está instalado</span>
+docker run hello-world      <span class="comment"># descarga y ejecuta un contenedor de prueba</span></code></pre>
+  <p>Al ejecutar <code>docker run hello-world</code>, Docker hace tres cosas:</p>
+  <ol>
+    <li>Busca la imagen <code>hello-world</code> en tu computadora. Como no está, la <strong>descarga</strong> de Docker Hub.</li>
+    <li><strong>Crea un contenedor</strong> a partir de esa imagen.</li>
+    <li><strong>Lo ejecuta</strong>: imprime un mensaje de bienvenida y termina.</li>
+  </ol>
+  <div class="note">
+    ⚠️ Si aparece <em>“Cannot connect to the Docker daemon”</em>, es que Docker Desktop no está abierto. Ábrelo y espera a que diga <strong>Engine running</strong>.
+  </div>
+</section>
+
+<section id="imagenes">
+  <h2>4. Trabajar con imágenes</h2>
+  <p>Las imágenes se identifican por <code>nombre:etiqueta</code>. Si no pones etiqueta, Docker usa <code>latest</code>.</p>
+<pre><code>docker pull node:20-alpine      <span class="comment"># descarga una imagen</span>
+docker images                   <span class="comment"># lista las imágenes locales</span>
+docker image inspect nginx      <span class="comment"># muestra los detalles de una imagen</span>
+docker tag mi-app usuario/mi-app:1.0   <span class="comment"># le pone otro nombre/etiqueta</span>
+docker rmi nginx                <span class="comment"># elimina una imagen</span>
+docker image prune              <span class="comment"># borra imágenes sin usar</span></code></pre>
+  <div class="grid">
+    <div class="card">
+      <h3>🏷️ Etiquetas</h3>
+      <p><code>node:20</code>, <code>node:20-alpine</code>, <code>node:latest</code>… Usa versiones fijas en lugar de <code>latest</code> para que tu app no cambie sin aviso.</p>
+    </div>
+    <div class="card">
+      <h3>🪶 Alpine y slim</h3>
+      <p>Las variantes <code>-alpine</code> y <code>-slim</code> son mucho más ligeras. Ideales para producción.</p>
+    </div>
+    <div class="card">
+      <h3>🧱 Capas</h3>
+      <p>Una imagen está hecha de <strong>capas</strong> apiladas. Docker reutiliza las capas que no cambian, por eso las descargas y builds son rápidos.</p>
+    </div>
+  </div>
+</section>
+
+<section id="contenedores">
+  <h2>5. Trabajar con contenedores</h2>
+  <h3>Crear y ejecutar</h3>
+<pre><code>docker run nginx                                <span class="comment"># ejecuta en primer plano (Ctrl+C para salir)</span>
+docker run -d nginx                             <span class="comment"># -d: en segundo plano</span>
+docker run -d -p 8080:80 --name web nginx       <span class="comment"># puerto 8080 de tu PC → 80 del contenedor</span>
+docker run -d -e CLAVE=valor --name app mi-app  <span class="comment"># -e: variable de entorno</span>
+docker run --rm -it node:20 bash                <span class="comment"># --rm: se borra al salir · -it: terminal interactiva</span></code></pre>
+
+  <h3>Ver, entrar y detener</h3>
+<pre><code>docker ps                   <span class="comment"># contenedores en ejecución</span>
+docker ps -a                <span class="comment"># todos, también los detenidos</span>
+docker logs -f web          <span class="comment"># ver los logs en vivo</span>
+docker exec -it web sh      <span class="comment"># abrir una terminal dentro del contenedor</span>
+docker stop web             <span class="comment"># detener</span>
+docker start web            <span class="comment"># volver a arrancar</span>
+docker rm web               <span class="comment"># eliminar (debe estar detenido)</span>
+docker rm -f web            <span class="comment"># detener y eliminar a la vez</span></code></pre>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Opción de <code>docker run</code></th><th>Para qué sirve</th></tr></thead>
+    <tbody>
+      <tr><td><code>-d</code></td><td>Ejecuta en segundo plano (detached)</td></tr>
+      <tr><td><code>-p 8080:80</code></td><td>Publica un puerto: <em>tu PC</em>:<em>contenedor</em></td></tr>
+      <tr><td><code>--name web</code></td><td>Le da un nombre fácil de recordar</td></tr>
+      <tr><td><code>-e CLAVE=valor</code></td><td>Define una variable de entorno</td></tr>
+      <tr><td><code>-v datos:/ruta</code></td><td>Monta un volumen para guardar datos</td></tr>
+      <tr><td><code>--rm</code></td><td>Borra el contenedor automáticamente al detenerse</td></tr>
+      <tr><td><code>-it</code></td><td>Modo interactivo con terminal</td></tr>
+      <tr><td><code>--network mi-red</code></td><td>Conecta el contenedor a una red</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note">
+    🔎 Un contenedor vive mientras su proceso principal esté en ejecución. Si el proceso termina (o falla), el contenedor se detiene.
+    Revisa por qué con <code>docker logs &lt;nombre&gt;</code>.
+  </div>
+</section>
+
+<section id="dockerfile">
+  <h2>6. El Dockerfile: crea tu propia imagen</h2>
+  <p>Ejemplo para una app de Node.js. El archivo se llama exactamente <code>Dockerfile</code> (sin extensión) y va en la raíz del proyecto:</p>
+<pre><code><span class="comment"># 1. Imagen base</span>
+FROM node:20-alpine
+
+<span class="comment"># 2. Carpeta de trabajo dentro del contenedor</span>
+WORKDIR /app
+
+<span class="comment"># 3. Copia primero las dependencias (aprovecha la caché)</span>
+COPY package*.json ./
+RUN npm ci
+
+<span class="comment"># 4. Copia el resto del código</span>
+COPY . .
+
+<span class="comment"># 5. Documenta el puerto y define el comando de inicio</span>
+EXPOSE 3000
+CMD ["node", "server.js"]</code></pre>
+<pre><code>docker build -t mi-app:1.0 .                    <span class="comment"># construye la imagen (el punto = carpeta actual)</span>
+docker run -d -p 3000:3000 --name web mi-app:1.0</code></pre>
+
+  <h3>Instrucciones más usadas</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Instrucción</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><code>FROM</code></td><td>Imagen base de la que partes. Siempre es la primera.</td></tr>
+      <tr><td><code>WORKDIR</code></td><td>Carpeta de trabajo para las siguientes instrucciones.</td></tr>
+      <tr><td><code>COPY</code></td><td>Copia archivos de tu proyecto a la imagen.</td></tr>
+      <tr><td><code>RUN</code></td><td>Ejecuta un comando <strong>al construir</strong> (instalar paquetes).</td></tr>
+      <tr><td><code>ENV</code></td><td>Define variables de entorno.</td></tr>
+      <tr><td><code>EXPOSE</code></td><td>Documenta en qué puerto escucha la app (no lo publica).</td></tr>
+      <tr><td><code>CMD</code></td><td>Comando que se ejecuta <strong>al arrancar</strong> el contenedor.</td></tr>
+      <tr><td><code>ENTRYPOINT</code></td><td>Como CMD, pero más difícil de sobrescribir. Útil para herramientas.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>El archivo <code>.dockerignore</code></h3>
+  <p>Funciona como <code>.gitignore</code>: evita copiar a la imagen archivos innecesarios o secretos.</p>
+<pre><code>node_modules
+.git
+.env
+*.log</code></pre>
+  <div class="note">
+    ⚡ <strong>Caché de capas:</strong> cada instrucción crea una capa. Si una capa no cambió, Docker la reutiliza.
+    Por eso se copia <code>package.json</code> y se ejecuta <code>npm ci</code> <em>antes</em> de copiar el código:
+    si solo cambias el código, no se reinstalan las dependencias.
+  </div>
+</section>
+
+<section id="volumenes">
+  <h2>7. Volúmenes y redes</h2>
+  <p>
+    Al borrar un contenedor, <strong>se borra todo lo que guardó dentro</strong>. Para conservar datos (por ejemplo,
+    una base de datos) se usan <strong>volúmenes</strong>.
+  </p>
+  <div class="grid">
+    <div class="card">
+      <h3>💾 Volumen</h3>
+      <p>Lo administra Docker. Ideal para bases de datos.<br><code>-v datos-db:/var/lib/postgresql/data</code></p>
+    </div>
+    <div class="card">
+      <h3>📂 Bind mount</h3>
+      <p>Conecta una carpeta de tu PC. Ideal para desarrollo: ves los cambios al instante.<br><code>-v ./src:/app/src</code></p>
+    </div>
+    <div class="card">
+      <h3>🌐 Red</h3>
+      <p>Los contenedores en la misma red se encuentran <strong>por su nombre</strong>, como si fuera un dominio.</p>
+    </div>
+  </div>
+<pre><code><span class="comment"># Volúmenes</span>
+docker volume create datos-db
+docker volume ls
+docker volume rm datos-db
+
+<span class="comment"># Redes: la app se conecta a la base de datos usando el host "db"</span>
+docker network create mi-red
+docker run -d --name db --network mi-red -e POSTGRES_PASSWORD=secreto -v datos-db:/var/lib/postgresql/data postgres:16
+docker run -d --name app --network mi-red -p 3000:3000 -e DB_HOST=db mi-app:1.0</code></pre>
+</section>
+
+<section id="compose">
+  <h2>8. Docker Compose: varios contenedores a la vez</h2>
+  <p>
+    Escribir todos esos <code>docker run</code> a mano es incómodo. Con <strong>Docker Compose</strong> describes tu app completa
+    (servicios, puertos, volúmenes y redes) en un archivo <code>compose.yaml</code> y la levantas con un solo comando.
+  </p>
+<pre><code>services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: secreto
+    volumes:
+      - datos-db:/var/lib/postgresql/data
+
+volumes:
+  datos-db:</code></pre>
+<pre><code>docker compose up -d           <span class="comment"># construye y levanta todo en segundo plano</span>
+docker compose ps              <span class="comment"># estado de los servicios</span>
+docker compose logs -f app     <span class="comment"># logs de un servicio</span>
+docker compose up -d --build   <span class="comment"># reconstruye tras cambiar el código</span>
+docker compose down            <span class="comment"># detiene y borra los contenedores</span>
+docker compose down -v         <span class="comment"># …y también los volúmenes (¡borra los datos!)</span></code></pre>
+  <div class="note">
+    💡 Compose crea automáticamente una red para todos los servicios, así que <code>app</code> se conecta a la base de datos usando
+    el nombre <code>db</code>. Antes se escribía <code>docker-compose</code> (con guion); hoy el comando es <code>docker compose</code>.
+  </div>
+</section>
+
+<section id="hub">
+  <h2>9. Docker Hub: compartir imágenes</h2>
+  <p>
+    <strong>Docker Hub</strong> (<a href="https://hub.docker.com" target="_blank" rel="noopener">hub.docker.com</a>) es a las imágenes
+    lo que GitHub es al código. Allí están las imágenes oficiales (<code>node</code>, <code>nginx</code>, <code>postgres</code>…) y puedes subir las tuyas.
+  </p>
+<pre><code>docker login                                  <span class="comment"># inicia sesión con tu usuario de Docker Hub</span>
+docker tag mi-app:1.0 usuario/mi-app:1.0      <span class="comment"># el nombre debe empezar con tu usuario</span>
+docker push usuario/mi-app:1.0                <span class="comment"># sube la imagen</span>
+docker pull usuario/mi-app:1.0                <span class="comment"># descárgala en otra computadora</span></code></pre>
+  <div class="grid">
+    <div class="card">
+      <h3>🐙 Git ↔ Docker</h3>
+      <p>El <strong>código</strong> y el <code>Dockerfile</code> van a GitHub. La <strong>imagen construida</strong> va a un registro como Docker Hub.</p>
+    </div>
+    <div class="card">
+      <h3>📦 Otros registros</h3>
+      <p>GitHub Container Registry (<code>ghcr.io</code>), GitLab, AWS ECR, Google Artifact Registry…</p>
+    </div>
+    <div class="card">
+      <h3>🔒 Privacidad</h3>
+      <p>Por defecto, los repositorios de Docker Hub son <strong>públicos</strong>. No incluyas contraseñas ni archivos <code>.env</code> en la imagen.</p>
+    </div>
+  </div>
+</section>
+
+<section id="practicas">
+  <h2>10. Buenas prácticas</h2>
+  <ul>
+    <li><strong>Usa imágenes oficiales y con versión fija</strong> (<code>node:20-alpine</code>, no <code>node:latest</code>).</li>
+    <li><strong>Imágenes pequeñas:</strong> prefiere variantes <code>-alpine</code> o <code>-slim</code>.</li>
+    <li><strong>Agrega un <code>.dockerignore</code></strong> para no copiar <code>node_modules</code>, <code>.git</code> ni <code>.env</code>.</li>
+    <li><strong>Ordena el Dockerfile</strong> de lo que menos cambia a lo que más cambia, para aprovechar la caché.</li>
+    <li><strong>Un proceso por contenedor:</strong> la app en uno, la base de datos en otro.</li>
+    <li><strong>Nunca guardes secretos en la imagen.</strong> Pásalos con variables de entorno al ejecutar.</li>
+    <li><strong>Guarda los datos en volúmenes</strong>, no dentro del contenedor.</li>
+    <li><strong>Limpia de vez en cuando</strong> con <code>docker system prune</code> para liberar espacio.</li>
+  </ul>
+</section>
+
+<section id="chuleta">
+  <h2>11. Chuleta rápida</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Comando</th><th>Para qué sirve</th></tr></thead>
+    <tbody>
+      <tr><td><code>docker build -t &lt;nombre&gt; .</code></td><td>Construye una imagen desde el Dockerfile</td></tr>
+      <tr><td><code>docker images</code></td><td>Lista las imágenes locales</td></tr>
+      <tr><td><code>docker pull &lt;imagen&gt;</code></td><td>Descarga una imagen</td></tr>
+      <tr><td><code>docker run -d -p 8080:80 &lt;imagen&gt;</code></td><td>Crea y ejecuta un contenedor en segundo plano</td></tr>
+      <tr><td><code>docker ps</code> / <code>docker ps -a</code></td><td>Contenedores activos / todos</td></tr>
+      <tr><td><code>docker logs -f &lt;nombre&gt;</code></td><td>Muestra los logs en vivo</td></tr>
+      <tr><td><code>docker exec -it &lt;nombre&gt; sh</code></td><td>Abre una terminal dentro del contenedor</td></tr>
+      <tr><td><code>docker stop</code> / <code>docker start</code></td><td>Detiene / arranca un contenedor</td></tr>
+      <tr><td><code>docker rm &lt;nombre&gt;</code></td><td>Elimina un contenedor</td></tr>
+      <tr><td><code>docker rmi &lt;imagen&gt;</code></td><td>Elimina una imagen</td></tr>
+      <tr><td><code>docker volume ls</code></td><td>Lista los volúmenes</td></tr>
+      <tr><td><code>docker compose up -d</code></td><td>Levanta todos los servicios de compose.yaml</td></tr>
+      <tr><td><code>docker compose down</code></td><td>Detiene y elimina los servicios</td></tr>
+      <tr><td><code>docker push usuario/imagen:tag</code></td><td>Sube una imagen a Docker Hub</td></tr>
+      <tr><td><code>docker system prune</code></td><td>Borra contenedores, redes e imágenes sin usar</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+</main>
+
+<footer>Guía de Docker · Fullstack</footer>
+
+<script src="docker.js"></script>
+</body>
+</html>

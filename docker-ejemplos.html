@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejemplos prácticos de Docker</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="docker">
+
+<div class="site-nav">
+  <a href="index.html" class="site-brand">🧰 Fullstack</a>
+  <div class="site-tabs">
+    <a href="index.html">🌿 Git y GitHub</a>
+    <a href="docker.html" class="active" aria-current="page">🐳 Docker</a>
+  </div>
+</div>
+
+<header>
+  <h1>📘 Ejemplos prácticos de Docker</h1>
+  <p>Elige una situación y ve, paso a paso, qué comandos escribir y qué hace cada uno.</p>
+</header>
+
+<nav>
+  <a href="docker.html">← Volver a la guía de Docker</a>
+</nav>
+
+<main>
+
+<section class="picker">
+  <label for="ejemplo-select">¿Qué quieres hacer?</label>
+  <select id="ejemplo-select"></select>
+  <p class="picker-hint">Los comandos en las cajas oscuras se escriben en la terminal. Los pasos marcados con 🌐 se hacen en el navegador (Docker Hub o la web de Docker).</p>
+</section>
+
+<section id="ejemplo" aria-live="polite"></section>
+
+</main>
+
+<footer>Guía de Docker · Fullstack</footer>
+
+<script src="docker-ejemplos.js"></script>
+<script src="ejemplos-app.js"></script>
+</body>
+</html>

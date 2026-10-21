@@ -13,8 +13,15 @@ Es un sitio estático: solo usa HTML, CSS y JavaScript, sin dependencias ni proc
 | `index.html` | Guía teórica sobre ramas, organizada en 10 secciones |
 | `script.js` | Lógica del simulador paso a paso del historial de commits |
 | `ejemplos.html` | Página de ejemplos prácticos con un selector |
-| `ejemplos.js` | Datos de los 11 ejemplos y el código que los muestra |
-| `styles.css` | Estilos compartidos por ambas páginas |
+| `ejemplos.js` | Datos de los 11 ejemplos de Git |
+| `ejemplos-app.js` | Código que muestra los ejemplos (compartido por Git y Docker) |
+| `docker.html` | Guía de Docker, organizada en 11 secciones |
+| `docker.js` | Simulador del ciclo Dockerfile → imagen → contenedor |
+| `docker-ejemplos.html` | Página de ejemplos prácticos de Docker |
+| `docker-ejemplos.js` | Datos de los 10 ejemplos de Docker |
+| `styles.css` | Estilos compartidos por todas las páginas |
+
+Un menú superior permite cambiar entre las secciones **🌿 Git y GitHub** y **🐳 Docker**.
 
 ---
 

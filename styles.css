@@ -77,6 +77,50 @@ body {
 
 ::selection { background: var(--accent); color: #fff; }
 
+/* ========== Menú superior (Git / Docker) ========== */
+.site-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px 16px;
+  padding: 10px 16px;
+  background: var(--term-bg);
+}
+.site-brand {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.site-tabs { display: flex; gap: 6px; }
+.site-tabs a {
+  padding: 7px 16px;
+  border-radius: 999px;
+  color: rgba(255,255,255,.75);
+  text-decoration: none;
+  font-size: .92rem;
+  font-weight: 600;
+  transition: background .2s, color .2s;
+}
+.site-tabs a:hover { background: rgba(255,255,255,.12); color: #fff; }
+.site-tabs a.active {
+  background: linear-gradient(135deg, var(--hero-2), var(--hero-3));
+  color: #fff;
+}
+
+/* ========== Tema Docker (tonos azules) ========== */
+body.docker {
+  --accent: #1d63ed;
+  --hero-1: #0a2a6b;
+  --hero-2: #1d63ed;
+  --hero-3: #00a3d9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body.docker {
+    --accent: #6ea2ff;
+    --hero-1: #061a45;
+    --hero-2: #1a4fc0;
+    --hero-3: #007ea8;
+  }
+}
+
 /* ========== Encabezado ========== */
 header {
   position: relative;
@@ -179,6 +223,7 @@ section:nth-of-type(7) { --sec: #00a8cc; }
 section:nth-of-type(8) { --sec: #e84393; }
 section:nth-of-type(9) { --sec: #f5a524; }
 section:nth-of-type(10) { --sec: #6d4aff; }
+section:nth-of-type(11) { --sec: #00a8cc; }
 
 h2 {
   margin: 0 0 16px;
@@ -290,6 +335,9 @@ td code { white-space: nowrap; }
 .sim .lbl { font: 600 13px "Poppins", system-ui, sans-serif; fill: var(--text); }
 .sim .tag rect { rx: 4; }
 .sim .tag text { font: 600 12px "Poppins", system-ui, sans-serif; fill: #fff; }
+.sim .box rect { rx: 10; stroke: var(--surface); stroke-width: 3; }
+.sim .box text { font: 600 13px "Poppins", system-ui, sans-serif; fill: #fff; }
+.sim .arrow { stroke: var(--muted); stroke-width: 2.5; fill: none; }
 .sim [data-show] { transition: opacity .35s; }
 .sim .hidden { opacity: 0; }
 
